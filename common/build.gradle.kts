@@ -5,7 +5,3 @@ val bootJar: BootJar by tasks
 
 bootJar.enabled = false
 jar.enabled = true
-
-dependencies {
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.4")
-}
