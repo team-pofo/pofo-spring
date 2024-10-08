@@ -38,3 +38,9 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Data Crawling ###
+Lib/
+Scripts/
+.csv
+pyenv.cfg
