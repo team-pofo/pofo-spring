@@ -19,7 +19,7 @@ allprojects {
         mavenCentral()
     }
 
-    tasks.withType<JavaCompile> {
+    tasks.withType<JavaCompile>().configureEach {
         sourceCompatibility = JavaVersion.VERSION_17.toString()
         targetCompatibility = JavaVersion.VERSION_17.toString()
     }
@@ -31,7 +31,7 @@ allprojects {
         }
     }
 
-    tasks.withType<Test> {
+    tasks.withType<Test>().configureEach {
         useJUnitPlatform()
     }
 }

@@ -27,13 +27,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    protected User(@NonNull String password, @NonNull String email) {
-        this.password = password;
+    protected User(@NonNull String email, @NonNull String password) {
         this.email = email;
+        this.password = password;
         this.role = UserRole.ROLE_USER;
     }
 
-    public static User create(@NonNull String password, @NonNull String email) {
+    public static User create(@NonNull String email, @NonNull String password) {
         return new User(email, password);
     }
 }
