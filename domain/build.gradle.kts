@@ -7,6 +7,8 @@ bootJar.enabled = false
 jar.enabled = true
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("com.mysql:mysql-connector-j")
+    api("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    runtimeOnly("org.postgresql:postgresql:42.7.4")
+    runtimeOnly("com.h2database:h2:2.3.232")
 }
