@@ -2,11 +2,8 @@ package com.kookmin.api.security
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kookmin.api.dto.LoginRequest
-import com.kookmin.common.error.CustomError
-import com.kookmin.common.error.ErrorType
 import com.kookmin.domain.user.User
 import com.kookmin.domain.user.UserRepository
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
