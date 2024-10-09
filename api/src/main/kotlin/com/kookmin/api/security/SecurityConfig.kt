@@ -34,9 +34,6 @@ class SecurityConfig(
                     .requestMatchers("/user").permitAll()
                     .anyRequest().authenticated()
             }
-            .securityContext {
-                HttpSessionSecurityContextRepository()
-            }
             .addFilterBefore(
                 customAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter::class.java
