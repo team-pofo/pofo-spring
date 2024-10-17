@@ -12,7 +12,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.kookmin"
+    group = "org.moeum"
     version = "0.0.1-SNAPSHOT"
 
     repositories {
