@@ -1,8 +1,8 @@
-rootProject.name = "backend"
+rootProject.name = "moeum-backend"
 
-include("api")
-include("common")
-include("domain")
+include(":moeum-api")
+include(":moeum-common")
+include(":moeum-domain")
 
 pluginManagement {
     repositories {

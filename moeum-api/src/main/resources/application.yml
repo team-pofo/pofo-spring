@@ -1,0 +1,14 @@
+spring.profiles.active: local
+
+spring:
+  config:
+    import:
+      - application-db.yml
+  web:
+    resources:
+      add-mappings: false
+
+logging:
+  level:
+    org.moeum.api: DEBUG
+    org.springframework.security: DEBUG
