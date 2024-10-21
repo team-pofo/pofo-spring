@@ -1,8 +1,8 @@
-rootProject.name = "moeum-backend"
+rootProject.name = "pofo-spring"
 
-include(":moeum-api")
-include(":moeum-common")
-include(":moeum-domain")
+include(":pofo-api")
+include(":pofo-common")
+include(":pofo-domain")
 
 pluginManagement {
     repositories {

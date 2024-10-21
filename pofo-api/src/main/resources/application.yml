@@ -1,0 +1,22 @@
+spring.profiles.active: local
+
+spring:
+  config:
+    import:
+      - application-db.yml
+  web:
+    resources:
+      add-mappings: false
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
+      locations:
+        - classpath:graphql/**/
+
+logging:
+  level:
+    org.pofo.api: DEBUG
+    org.springframework.security: DEBUG

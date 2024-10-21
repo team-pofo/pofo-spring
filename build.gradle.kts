@@ -12,7 +12,7 @@ plugins {
 }
 
 allprojects {
-    group = "org.moeum"
+    group = "org.pofo"
     version = "0.0.1-SNAPSHOT"
 
     repositories {
