@@ -19,9 +19,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 class SecurityConfig(
     private val authenticationConfiguration: AuthenticationConfiguration,
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
 ) {
-
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
@@ -36,11 +35,10 @@ class SecurityConfig(
             }
             .addFilterBefore(
                 customAuthenticationFilter(),
-                UsernamePasswordAuthenticationFilter::class.java
+                UsernamePasswordAuthenticationFilter::class.java,
             )
             .build()
     }
-
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
