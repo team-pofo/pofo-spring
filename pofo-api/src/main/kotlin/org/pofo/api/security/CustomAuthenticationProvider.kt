@@ -1,9 +1,9 @@
 package org.pofo.api.security
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.pofo.api.service.UserService
 import org.pofo.common.error.CustomError
 import org.pofo.common.error.ErrorType
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
@@ -16,8 +16,8 @@ private val logger = KotlinLogging.logger {}
 @Component
 class CustomAuthenticationProvider(
     private val userService: UserService,
-    private val passwordEncoder: PasswordEncoder
-): AuthenticationProvider {
+    private val passwordEncoder: PasswordEncoder,
+) : AuthenticationProvider {
     override fun authenticate(authentication: Authentication): Authentication {
         val email = authentication.name
         val password = authentication.credentials.toString()
@@ -28,13 +28,16 @@ class CustomAuthenticationProvider(
             if (!passwordEncoder.matches(password, user.password)) {
                 throw CustomError(ErrorType.INVALID_PASSWORD)
             }
-            val authorities = listOf(
-                SimpleGrantedAuthority(user.role.name)
-            )
-            val token = CustomAuthenticationToken(
-                principal = user,
-                credentials = null,
-                authorities = authorities)
+            val authorities =
+                listOf(
+                    SimpleGrantedAuthority(user.role.name),
+                )
+            val token =
+                CustomAuthenticationToken(
+                    principal = user,
+                    credentials = null,
+                    authorities = authorities,
+                )
             return token
         } catch (err: CustomError) {
             throw BadCredentialsException(err.message)
@@ -44,5 +47,4 @@ class CustomAuthenticationProvider(
     override fun supports(authentication: Class<*>): Boolean {
         return CustomAuthenticationToken::class.java.isAssignableFrom(authentication)
     }
-
 }

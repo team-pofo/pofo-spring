@@ -13,14 +13,13 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class CustomAuthenticationFailureHandler: AuthenticationFailureHandler {
-
+class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
     private val objectMapper = jacksonObjectMapper()
 
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        exception: AuthenticationException
+        exception: AuthenticationException,
     ) {
         logger.error { "login failed: ${exception.message}" }
 
@@ -31,7 +30,7 @@ class CustomAuthenticationFailureHandler: AuthenticationFailureHandler {
 
         objectMapper.writeValue(
             response.writer,
-            false
+            false,
         )
     }
 }
