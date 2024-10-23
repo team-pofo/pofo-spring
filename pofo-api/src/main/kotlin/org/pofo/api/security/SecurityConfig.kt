@@ -24,31 +24,34 @@ class SecurityConfig(
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
     private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
 ) {
-
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        return http
-            .cors { httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()) }
-            .csrf { it.disable() }
+    fun filterChain(http: HttpSecurity): SecurityFilterChain =
+        http
+            .cors { httpSecurityCorsConfigurer ->
+                httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource())
+            }.csrf { it.disable() }
             .formLogin { it.disable() }
             .httpBasic { it.disable() }
             .headers { headerConfigs -> headerConfigs.frameOptions { it.disable() } }
             .authorizeHttpRequests {
-                it.requestMatchers(PathRequest.toH2Console()).permitAll()
-                    .requestMatchers("/user").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .addFilterBefore(
+                it
+                    .requestMatchers(PathRequest.toH2Console())
+                    .permitAll()
+                    .requestMatchers("/user")
+                    .permitAll()
+                    .requestMatchers("/graphql")
+                    .permitAll()
+                    .requestMatchers("/graphiql")
+                    .permitAll()
+                    .anyRequest()
+                    .permitAll()
+            }.addFilterBefore(
                 customAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter::class.java,
-            )
-            .build()
-    }
+            ).build()
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     @Bean
     fun customAuthenticationFilter(): CustomAuthenticationFilter {

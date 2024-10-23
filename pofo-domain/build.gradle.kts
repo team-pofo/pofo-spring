@@ -22,7 +22,11 @@ dependencies {
 }
 
 // --------------------------------- QueryDSL settings -----------------------------------------------
-val generatedDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+val generatedDir =
+    layout.buildDirectory
+        .dir("generated/querydsl")
+        .get()
+        .asFile
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.plusAssign("-s")

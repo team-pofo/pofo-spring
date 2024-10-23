@@ -37,6 +37,6 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             projects.remove(size);
         }
 
-        return new ProjectList(projects, hasNext, 0);
+        return new ProjectList(projects, hasNext, projects.size());
     }
 }
