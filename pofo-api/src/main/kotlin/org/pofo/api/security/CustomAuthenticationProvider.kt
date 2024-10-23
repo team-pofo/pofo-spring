@@ -34,7 +34,7 @@ class CustomAuthenticationProvider(
                 )
             val token =
                 CustomAuthenticationToken(
-                    principal = user,
+                    principal = CustomUserDetails(user),
                     credentials = null,
                     authorities = authorities,
                 )
@@ -44,7 +44,6 @@ class CustomAuthenticationProvider(
         }
     }
 
-    override fun supports(authentication: Class<*>): Boolean {
-        return CustomAuthenticationToken::class.java.isAssignableFrom(authentication)
-    }
+    override fun supports(authentication: Class<*>): Boolean =
+        CustomAuthenticationToken::class.java.isAssignableFrom(authentication)
 }

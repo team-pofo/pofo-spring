@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.repository.ProjectRepository
+import org.pofo.domain.user.User
 import org.pofo.domain.user.UserRepository
+import org.pofo.domain.user.UserRole
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester
 import org.springframework.boot.test.context.SpringBootTest
@@ -107,10 +109,37 @@ class ProjectControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com", roles = ["USER"]) // Mock 사용자 설정
-    fun createProject() {
+    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
+    fun createProjectSuccess() {
+        // given
+        val mockUser =
+            userRepository.save(
+                User
+                    .builder()
+                    .email("testuser@example.com")
+                    .password("password")
+                    .role(UserRole.ROLE_USER)
+                    .build(),
+            )
+
+        val variables =
+            mapOf(
+                "title" to "새로운 프로젝트",
+                "bio" to "프로젝트 설명",
+                "urls" to listOf("https://example.com"),
+                "imageUrls" to listOf("https://example.com/image.png"),
+                "content" to "프로젝트 내용",
+                "category" to "CATEGORY_A",
+            )
+
         graphQlTester
-            .document("createProject")
+            .documentName("createProject")
+            .variable("title", variables["title"])
+            .variable("bio", variables["bio"])
+            .variable("urls", variables["urls"])
+            .variable("imageUrls", variables["imageUrls"])
+            .variable("content", variables["content"])
+            .variable("category", variables["category"])
             .execute()
             .path("createProject.title")
             .entity(String::class.java)
@@ -118,9 +147,49 @@ class ProjectControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user@example.com", roles = ["USER"])
+    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
+    fun createProjectFail() {
+        // given
+        val variables =
+            mapOf(
+                "title" to "새로운 프로젝트",
+                "bio" to "프로젝트 설명",
+                "urls" to listOf("https://example.com"),
+                "imageUrls" to listOf("https://example.com/image.png"),
+                "content" to "프로젝트 내용",
+                "category" to "CATEGORY_A",
+            )
+
+        graphQlTester
+            .documentName("createProject")
+            .variable("title", variables["title"])
+            .variable("bio", variables["bio"])
+            .variable("urls", variables["urls"])
+            .variable("imageUrls", variables["imageUrls"])
+            .variable("content", variables["content"])
+            .variable("category", variables["category"])
+            .execute()
+            .errors()
+            .satisfy { errors ->
+                assertThat(errors).hasSize(1)
+                assertThat(errors[0].message).contains("유저를 찾을 수 없습니다.")
+            }
+    }
+
+    @Test
+    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
     fun updateProject() {
         // given
+        val mockUser =
+            userRepository.save(
+                User
+                    .builder()
+                    .email("testuser@example.com")
+                    .password("password")
+                    .role(UserRole.ROLE_USER)
+                    .build(),
+            )
+
         val savedProject =
             projectRepository.save(
                 Project
@@ -130,25 +199,33 @@ class ProjectControllerTest {
                     .content("이전 프로젝트 내용")
                     .category(ProjectCategory.CATEGORY_B)
                     .isApproved(true)
+                    .author(mockUser)
                     .build(),
             )
 
-        // when & then
+        val variables =
+            mapOf(
+                "projectId" to savedProject.id.toString(),
+                "title" to "새로운 프로젝트",
+                "bio" to "프로젝트 설명",
+                "urls" to listOf("https://example.com"),
+                "imageUrls" to listOf("https://example.com/image.png"),
+                "content" to "프로젝트 내용",
+                "category" to "CATEGORY_A",
+            )
+
         graphQlTester
             .documentName("updateProject")
-            .variable("projectId", savedProject.id)
-            .variable("title", "Updated Luminia Project")
-            .variable("bio", "업데이트된 설명")
-            .variable("urls", listOf("https://updated.com"))
-            .variable("imageUrls", listOf("https://updated.com/image.png"))
-            .variable("content", "업데이트된 내용")
-            .variable("category", ProjectCategory.CATEGORY_A)
+            .variable("projectId", variables["projectId"])
+            .variable("title", variables["title"])
+            .variable("bio", variables["bio"])
+            .variable("urls", variables["urls"])
+            .variable("imageUrls", variables["imageUrls"])
+            .variable("content", variables["content"])
+            .variable("category", variables["category"])
             .execute()
             .path("updateProject.title")
             .entity(String::class.java)
-            .isEqualTo("Updated Luminia Project")
-            .path("updateProject.bio")
-            .entity(String::class.java)
-            .isEqualTo("업데이트된 설명")
+            .isEqualTo("새로운 프로젝트")
     }
 }

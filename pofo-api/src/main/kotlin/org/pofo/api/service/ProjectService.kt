@@ -7,7 +7,7 @@ import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.ProjectList
 import org.pofo.domain.project.repository.ProjectRepository
-import org.pofo.domain.user.User
+import org.pofo.domain.user.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class ProjectService(
     private val projectRepository: ProjectRepository,
+    private val userRepository: UserRepository,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -35,9 +36,9 @@ class ProjectService(
         imageUrls: List<String>?,
         content: String,
         category: ProjectCategory,
-        user: User,
+        email: String,
     ): Project {
-        log.info("Creating new project with title: $title by user: ${user.id}")
+        val author = userRepository.findByEmail(email) ?: throw CustomError(ErrorType.USER_NOT_FOUND)
 
         val project =
             Project
@@ -48,10 +49,8 @@ class ProjectService(
                 .imageUrls(imageUrls)
                 .content(content)
                 .category(category)
-                .author(user)
+                .author(author)
                 .build()
-
-        log.info(project.title)
 
         return projectRepository.save(project)
     }
@@ -64,7 +63,9 @@ class ProjectService(
         imageUrls: List<String>?,
         content: String?,
         category: ProjectCategory?,
+        email: String,
     ): Project {
+        // TODO: 유저 Author가 여러명 있는데 수정 권한을 다 주는게 맞는지 여부 확인 후 소유자 체크 옵션 추가
         var project = projectRepository.findById(projectId) ?: throw CustomError(ErrorType.PROJECT_NOT_FOUND)
         project = project.update(title, bio, urls, imageUrls, content, category)
 
