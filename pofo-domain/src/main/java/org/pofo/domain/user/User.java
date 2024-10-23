@@ -1,5 +1,6 @@
 package org.pofo.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class User {
     @NonNull
     private String email;
 
+    @JsonIgnore
     @Column
     @NonNull
     private String password;
