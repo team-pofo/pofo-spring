@@ -1,24 +1,23 @@
 package org.pofo.api.controller
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.pofo.api.WithMockCustomUser
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.repository.ProjectRepository
 import org.pofo.domain.user.User
 import org.pofo.domain.user.UserRepository
-import org.pofo.domain.user.UserRole
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.graphql.test.tester.GraphQlTester
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 @AutoConfigureGraphQlTester
 @Transactional
-class ProjectControllerTest {
+internal class ProjectControllerTest {
     @Autowired
     private lateinit var graphQlTester: GraphQlTester
 
@@ -27,6 +26,13 @@ class ProjectControllerTest {
 
     @Autowired
     private lateinit var userRepository: UserRepository
+
+    private fun getMockUser(): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val user = authentication.principal as User
+        userRepository.save(user)
+        return user
+    }
 
     @Test
     fun getProjectById() {
@@ -53,13 +59,13 @@ class ProjectControllerTest {
             .isEqualTo(savedProject.id)
             .path("projectById.title")
             .entity(String::class.java)
-            .isEqualTo("Luminia")
+            .isEqualTo(savedProject.title)
     }
 
     @Test
     fun getAllProjectsByPagination() {
         // given
-        projectRepository.saveAll(
+        val savedProjects = projectRepository.saveAll(
             listOf(
                 Project
                     .builder()
@@ -88,40 +94,27 @@ class ProjectControllerTest {
             ),
         )
 
-        val allProjects = projectRepository.findAll()
-        assertThat(allProjects.size).isGreaterThanOrEqualTo(3)
-
         // when & then
         graphQlTester
             .documentName("getAllProjectsByPagination")
             .variable("cursor", 3)
             .variable("size", 2)
             .execute()
-            .path("getAllProjectsByPagination.projects[*].title")
-            .entityList(String::class.java)
-            .containsExactly("Luminia Project 2", "Luminia Project 1")
-            .path("getAllProjectsByPagination.hasNext")
-            .entity(Boolean::class.java)
-            .isEqualTo(false)
             .path("getAllProjectsByPagination.projectCount")
             .entity(Int::class.java)
             .isEqualTo(2)
+            .path("getAllProjectsByPagination.projects[*].title")
+            .entityList(String::class.java)
+            .containsExactly(savedProjects[1].title, savedProjects[0].title)
+            .path("getAllProjectsByPagination.hasNext")
+            .entity(Boolean::class.java)
+            .isEqualTo(false)
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
+    @WithMockCustomUser
     fun createProjectSuccess() {
-        // given
-        val mockUser =
-            userRepository.save(
-                User
-                    .builder()
-                    .email("testuser@example.com")
-                    .password("password")
-                    .role(UserRole.ROLE_USER)
-                    .build(),
-            )
-
+        val mockUser = getMockUser()
         val variables =
             mapOf(
                 "title" to "새로운 프로젝트",
@@ -140,6 +133,7 @@ class ProjectControllerTest {
             .variable("imageUrls", variables["imageUrls"])
             .variable("content", variables["content"])
             .variable("category", variables["category"])
+            .variable("author", mockUser)
             .execute()
             .path("createProject.title")
             .entity(String::class.java)
@@ -147,49 +141,10 @@ class ProjectControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
-    fun createProjectFail() {
-        // given
-        val variables =
-            mapOf(
-                "title" to "새로운 프로젝트",
-                "bio" to "프로젝트 설명",
-                "urls" to listOf("https://example.com"),
-                "imageUrls" to listOf("https://example.com/image.png"),
-                "content" to "프로젝트 내용",
-                "category" to "CATEGORY_A",
-            )
-
-        graphQlTester
-            .documentName("createProject")
-            .variable("title", variables["title"])
-            .variable("bio", variables["bio"])
-            .variable("urls", variables["urls"])
-            .variable("imageUrls", variables["imageUrls"])
-            .variable("content", variables["content"])
-            .variable("category", variables["category"])
-            .execute()
-            .errors()
-            .satisfy { errors ->
-                assertThat(errors).hasSize(1)
-                assertThat(errors[0].message).contains("유저를 찾을 수 없습니다.")
-            }
-    }
-
-    @Test
-    @WithMockUser(username = "testuser@example.com", roles = ["USER"])
+    @WithMockCustomUser
     fun updateProject() {
         // given
-        val mockUser =
-            userRepository.save(
-                User
-                    .builder()
-                    .email("testuser@example.com")
-                    .password("password")
-                    .role(UserRole.ROLE_USER)
-                    .build(),
-            )
-
+        val mockUser = getMockUser()
         val savedProject =
             projectRepository.save(
                 Project

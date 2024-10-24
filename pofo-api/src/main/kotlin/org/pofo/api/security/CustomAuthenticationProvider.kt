@@ -34,7 +34,7 @@ class CustomAuthenticationProvider(
                 )
             val token =
                 CustomAuthenticationToken(
-                    principal = CustomUserDetails(user),
+                    principal = user,
                     credentials = null,
                     authorities = authorities,
                 )

@@ -33,13 +33,13 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.plusAssign(generatedDir.absolutePath)
 }
 
+tasks.named("clean") {
+    delete(generatedDir)
+}
+
 sourceSets {
     named("main") {
         java.srcDir(generatedDir)
     }
-}
-
-tasks.named<Delete>("clean") {
-    delete(generatedDir)
 }
 // --------------------------------------------------------------------------------------
